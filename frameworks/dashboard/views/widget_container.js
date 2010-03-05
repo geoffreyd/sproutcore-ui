@@ -1,6 +1,7 @@
 // ==========================================================================
 // SCUI.WidgetContainerView
 // ==========================================================================
+/*globals SCUI */
 
 sc_require('views/missing_widget');
 
@@ -164,8 +165,12 @@ SCUI.WidgetContainerView = SC.View.extend( SC.Control, {
     and adjust the view accordingly.
   */
   contentPropertyDidChange: function(target, key) {
+    // console.log('%@.contentPropertyDidChange()'.fmt(this));
     if (key === this.getPath('content.sizeKey')) {
       this._sizeDidChange();
+    }
+    else if (key === this.getPath('content.positionKey')) {
+      this._positionDidChange();
     }
     else if (key === 'isEditing') {
       this._isEditingDidChange();
@@ -178,10 +183,27 @@ SCUI.WidgetContainerView = SC.View.extend( SC.Control, {
     var sizeKey = this.getPath('content.sizeKey');
     var size = sizeKey ? this.getPath('content.%@'.fmt(sizeKey)) : null;
 
-    //console.log('%@._sizeDidChange()'.fmt(this));
+    // console.log('%@._sizeDidChange()'.fmt(this));
 
     if (size) {
+      this.propertyWillChange('layout') ;
       this.adjust({ width: (parseFloat(size.width) || 0), height: (parseFloat(size.height) || 0) });
+      this.propertyDidChange('layout') ;
+      this.getPath('.owner').updateLayout() ;
+    }
+  },
+  
+  _positionDidChange: function() {
+    var positionKey = this.getPath('content.positionKey');
+    var pos = positionKey ? this.getPath('content.%@'.fmt(positionKey)) : null;
+    
+    // console.log('%@._positionDidChange()'.fmt(this));
+    
+    if (pos) {
+      this.propertyWillChange('layout') ;
+      this.adjust({ left: (parseFloat(pos.x) || 0), top: (parseFloat(pos.y) || 0) });
+      this.propertyDidChange('layout') ;
+      this.getPath('.owner').updateLayout() ;
     }
   },
 

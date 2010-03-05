@@ -1,6 +1,7 @@
 // ==========================================================================
 // SCUI.DashboardView
 // ==========================================================================
+/*globals SCUI */
 
 sc_require('views/widget_container');
 sc_require('mixins/dashboard_delegate');
@@ -176,6 +177,32 @@ SCUI.DashboardView = SC.CollectionView.extend( SCUI.DashboardDelegate, {
       layout = { left: pos.x, top: pos.y, width: size.width, height: size.height };
     }
     return layout;
+  },
+  
+  computeHeight: function() {
+    // console.log('computing layout') ;
+    var cvs = this.get('content'),
+        maxHeight = 0 ;
+    
+    cvs.forEach(function(item) {
+      var pos = item.get('position'),
+          size = item.get('size'),
+          height = parseFloat(pos.y) + parseFloat(size.height) + 60;
+      // console.log("Found height of %@, with y: %@ and height:%@".fmt(height, pos.y, size.height)) ;
+      Hubworks.Widgets.setIfChanged(SC._object_className(item.constructor).split('.')[1], height) ;
+      if (height > maxHeight) {
+        maxHeight = height ;
+      }
+    }) ;
+    return maxHeight ;
+  },
+  
+  dashboardHeightBinding: 'Hubworks.Widgets.dashboardHeight',
+  updateLayout: function() {
+    var height = this.computeHeight() ;
+    // console.log('Setting dashboard height to %@'.fmt(height)) ;
+    this.set('dashboardHeight', height+30) ;
+    // this.adjust(layout) ;
   },
   
   mouseDown: function(evt) {
